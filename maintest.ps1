@@ -7,7 +7,7 @@
 #$persistence = $false
 #$write_disk_only = $false
 #$vm_protect = $false
-#$camera = $false
+#$webcam = $false
 #$encryption_key = "YOUR_ENC_KEY_HERE"
 [Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"
 
